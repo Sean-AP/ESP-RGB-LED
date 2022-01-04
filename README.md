@@ -1,4 +1,4 @@
-# RGB-Lights
+# ESP-RGB-LED
 MicroPython module for controlling an RGB LED strip <br>
 For use with an ESP8266 or similar microcontroller <br>
 <br>
