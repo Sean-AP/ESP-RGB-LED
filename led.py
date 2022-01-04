@@ -1,9 +1,9 @@
-# Get pins responsible for each colour and set up PWM
 from machine import Pin, PWM
 from math import ceil, log
 from random import getrandbits
 from setup_led import R_PIN, G_PIN, B_PIN
 
+# Get pins responsible for each colour and set up PWM
 led = [
     PWM(x, freq=100, duty=0) for x in [
         Pin(R_PIN, Pin.OUT), 

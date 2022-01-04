@@ -1,6 +1,7 @@
 from led import led, lookup, random
 from parser import parse
 from setup_net import NAME, PORT
+from setup_led import MAX_FILESIZE
 import uasyncio
 import gc
 
@@ -8,7 +9,7 @@ parse_task = None
 exec_task = None
 
 ping = bytearray(b"ping")
-buf = bytearray(1024)
+buf = bytearray(MAX_FILESIZE)
 
 vars = { "r" : 0, "g" : 0, "b" : 0 }
 
