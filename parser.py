@@ -20,7 +20,7 @@ def parse(text: str) -> list:
     text = trailing.sub(r"\1 \2", text)
 
     # Split by line and discard empty lines - each line should represent a complete statement
-    lines = (line for line in text.split('\n') if len(line) > 0)
+    lines = (line for line in text.split('\n') if not line.isspace())
     script = "async def __script(vars, led, lookup, rng):\n"
 
     # Track previous state
