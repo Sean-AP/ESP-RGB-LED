@@ -12,6 +12,9 @@ def parse(text: str) -> list:
     # Replace groups of 4 spaces with tabs
     text = sub("    ", '\t', text)
 
+    # Strip comments
+    text = sub("#[^\n]*\n", '\n', text)
+
     # Ensure operators and other special characters have leading and trailing spaces
     text = leading.sub(r"\1 \2", text)
     text = trailing.sub(r"\1 \2", text)
@@ -22,6 +25,9 @@ def parse(text: str) -> list:
 
     # Track previous state
     prev_indent = 0
+    allow_else = False      # Can the next line start with elif/else?
+    for_loop = False        # Is the current line declaring a for loop?
+    indent_increase = False # Does the current line end with :?
 
     # Begin parsing
     for line in lines:
@@ -32,7 +38,7 @@ def parse(text: str) -> list:
 
         # Check for incorrect indentation from previous line
         if (indent > prev_indent and not indent_increase) or (indent < prev_indent and indent_increase):
-            raise RuntimeError("Invalid indentation")
+            raise RuntimeError("Invalid indentation on line '{0}'".format(stripped))
 
         # Parse the line as a statement
         tokens = whitespace.split(stripped)
@@ -43,15 +49,16 @@ def parse(text: str) -> list:
 
         # Check for illegal usage of elif/else
         if (tokens[0] == ELIF or tokens[0] == ELSE) and not allow_else:
-            raise RuntimeError("Cannot match conditional branch to an 'if' token")
+            raise RuntimeError("Cannot match conditional branch to an 'if' token on line '{0}'".format(stripped))
 
         # Set flags
-        allow_else = tokens[0] == IF
+        allow_else = tokens[0] == IF or (allow_else and tokens[0] == ELIF)
         for_loop = tokens[0] == FOR
         indent_increase = tokens[-1] == COLON
+        
         extra = ""
-
         parsed = []
+
         for token in tokens:
             # Skip processing for the first ID in a for loop
             if for_loop and isinstance(token, ID):
