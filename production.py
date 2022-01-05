@@ -38,7 +38,6 @@ class Production:
         # Find the first matching lexeme
         while i < len(rule) and index < len(tokens):
             lexeme = rule[i]
-            modifier = b""
             
             can_omit = allow_omission(lexeme)
             can_repeat = allow_many(lexeme)
