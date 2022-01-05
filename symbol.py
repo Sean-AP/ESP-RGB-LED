@@ -23,7 +23,6 @@ def match_terminal(symbol, tokens: list, index: int) -> int:
         match.value = tokens[index]
 
         tokens[index] = match
-        print(tokens[index])
         return index + 1
 
     else:
