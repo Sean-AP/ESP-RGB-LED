@@ -54,10 +54,10 @@ RangeList := , Expr
 ID := [a-zA-Z][a-zA-Z0-9_]*
 NUM := [0-9]+
 
-INTOP := [+\-\*/%]
-BOOLOP := &&|\|\|
-COND := [=!<>]=?
-ASSIGN := [+\-\*/]?=
+INTOP := + | - | * | // | %
+BOOLOP := && | ||
+COND := < | <= | == | != | >= | > 
+ASSIGN := = | += | -= | *= | /= | %=
 ```
 <br>
 
@@ -87,7 +87,7 @@ decrease = True
 
 while True:
       if decrease:
-            delay /= 2
+            delay //= 2
             decrease = delay > min_delay
 
       else:
