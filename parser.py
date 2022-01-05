@@ -20,7 +20,7 @@ def parse(text: str) -> list:
     text = trailing.sub(r"\1 \2", text)
 
     # Split by line and discard empty lines - each line should represent a complete statement
-    lines = (line for line in text.split('\n') if not line.isspace())
+    lines = (line for line in text.split('\n') if len(line) > 0 and not line.isspace())
     script = "async def __script(vars, led, lookup, rng):\n"
 
     # Track previous state
@@ -76,8 +76,7 @@ def parse(text: str) -> list:
 
 
 def process_token(token, tabs) -> str:
-    print(token)
-    # Handle special cases where the token match can't be directly substituted
+    # Handle special cases where the matched token can't be directly substituted
     if isinstance(token, ID):
         return "vars[\"{0}\"] ".format(token.value)
 
@@ -87,7 +86,7 @@ def process_token(token, tabs) -> str:
     elif token == SAVE:
         return tabs.join(["led[0].duty(lookup[vars[\"r\"]])\n", "led[1].duty(lookup[vars[\"g\"]])\n", "led[2].duty(lookup[vars[\"b\"]])"])
 
-    # For all other literals, return the token that matched it
+    # Return the matched token
     elif isinstance(token, str):
         return token + " "
     
