@@ -41,7 +41,7 @@ class NUM(Symbol):
 
 class INTOP(Symbol):
     __slots__ = ()
-    literal = "[\+\-\*/%]"
+    literal = "\+|\-|\*|\/\/|%"
     regex = compile(wholetext(literal))
 
 class BOOLOP(Symbol):
@@ -51,12 +51,12 @@ class BOOLOP(Symbol):
 
 class COND(Symbol):
     __slots__ = ()
-    literal = "[=!<>]=?"
+    literal = "[=!]=|[<>]=?"
     regex = compile(wholetext(literal))
 
 class ASSIGN(Symbol):
     __slots__ = ()
-    literal = "[\+\-\*/]?="
+    literal = "\+=|\-=|\*=|\/\/=|%=|="
     regex = compile(wholetext(literal))
 
 class ID(Symbol):
