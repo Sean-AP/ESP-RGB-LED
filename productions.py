@@ -54,10 +54,10 @@ ExprExt.rules = (
 
 
 Range.rules = (
-    (RANGE, LBRACKET, Expr, (RangeList, MAYBE), (RangeList, MAYBE), RBRACKET)
+    (RANGE, LBRACKET, Expr, (RangeList, MAYBE), (RangeList, MAYBE), RBRACKET),
 )
 
 
 RangeList.rules = (
-    (COMMA, Expr)
+    (COMMA, Expr),
 )
