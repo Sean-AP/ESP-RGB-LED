@@ -1,10 +1,11 @@
 # The symbols in the light language grammar
 
 from re import compile
-from symbol import Symbol
+from .symbol import Symbol
 
 # Literal keywords
 
+AND = 'and'
 COLON = ":"
 COMMA = ","
 ELIF = "elif"
@@ -15,6 +16,7 @@ IF = "if"
 IN = "in"
 LBRACKET = "("
 NOT = "not"
+OR = 'or'
 RBRACKET = ")"
 RANDOM = "random"
 RANGE = "range"
@@ -39,24 +41,24 @@ class NUM(Symbol):
     literal = "[0-9]+"
     regex = compile(wholetext(literal))
 
+class ASSIGN(Symbol):
+    __slots__ = ()
+    literal = "\+=|\-=|\*=|\/\/=|%=|="
+    regex = compile(wholetext(literal))
+
 class INTOP(Symbol):
     __slots__ = ()
     literal = "\+|\-|\*|\/\/|%"
     regex = compile(wholetext(literal))
 
-class BOOLOP(Symbol):
+class COMPARE(Symbol):
     __slots__ = ()
-    literal = "&&|\|\|"
+    literal = "[<>]=?"
     regex = compile(wholetext(literal))
 
-class COND(Symbol):
+class EQUATE(Symbol):
     __slots__ = ()
-    literal = "[=!]=|[<>]=?"
-    regex = compile(wholetext(literal))
-
-class ASSIGN(Symbol):
-    __slots__ = ()
-    literal = "\+=|\-=|\*=|\/\/=|%=|="
+    literal = "[=!]="
     regex = compile(wholetext(literal))
 
 class ID(Symbol):
@@ -66,18 +68,12 @@ class ID(Symbol):
     
     @classmethod
     def match(cls, token):
-        return (
-            cls.regex.match(token) is not None and
-            # Prevent conflicting matches with keywords 
-            not token == TRUE and
-            not token == FALSE and 
-            not token == WAIT and
-            not token == SAVE and
-            not token == WHILE and
-            not token == IF and
-            not token == ELSE and
-            not token == FOR and
-            not token == IN and
-            not token == RANGE and
-            not token == RANDOM 
+        # Prevent conflicting matches with keywords 
+        return cls.regex.match(token) is not None and not (
+            token == TRUE   or token == FALSE or
+            token == WAIT   or token == SAVE  or
+            token == WHILE  or token == IF    or
+            token == ELIF   or token == ELSE  or
+            token == FOR    or token == IN    or
+            token == RANDOM or token == RANGE
         )

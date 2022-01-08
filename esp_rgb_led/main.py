@@ -1,7 +1,7 @@
-from led import led, lookup, random
-from parser import parse
-from setup_net import NAME, PORT
-from setup_led import MAX_FILESIZE
+from .led import led, lookup, random
+from .parser import parse
+from .setup_net import NAME, PORT
+from .setup_led import MAX_FILESIZE
 import uasyncio
 import gc
 

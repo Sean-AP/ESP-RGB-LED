@@ -1,5 +1,5 @@
+from .setup_net import SSID, PASS
 from network import WLAN, STA_IF
-from setup_net import SSID, PASS
 
 if __name__ == "__main__":
     sta_if = WLAN(STA_IF)
