@@ -110,7 +110,7 @@ Errors are handled as follows:
 The script below will cycle through the colour spectrum on repeat <br>
 The delay starts at 40 ms, halving every cycle until 5 ms, then doubling until 40 ms, and repeats <br>
 
-```
+```python
 # Start at red
 r = 255
 g = 0
