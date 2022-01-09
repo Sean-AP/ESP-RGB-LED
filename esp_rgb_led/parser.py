@@ -26,6 +26,9 @@ def parse(text: str) -> list:
     lines = (line for line in newline.split(text) if len(line) > 0 and not line.isspace())
     script = "async def __script(vars, led, lookup, random):\n"
 
+    if len(lines) == 0:
+        return "{0}\tpass".format(script)
+
     # Track state
     prev_indent = 0
     indent_increase = False # Does the current line end with :?
