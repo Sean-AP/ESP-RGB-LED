@@ -2,18 +2,20 @@ from re import compile, sub
 from symbols import ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE, FOR, ID, IF, INTOP, LBRACKET, RBRACKET, SAVE, WAIT 
 from productions import Statement
 
-patterns = [ASSIGN.literal, INTOP.literal, COMPARE.literal, EQUATE.literal, "\\" + LBRACKET, "\\" + RBRACKET, COLON, COMMA]
-adjacent = "[{0}]".format("".join(["\w", "\\", LBRACKET, "\\", RBRACKET]))
+patterns = [ASSIGN.literal, INTOP.literal, COMPARE.literal, EQUATE.literal, "\{0}".format(LBRACKET), "\{0}".format(RBRACKET), COLON, COMMA]
+adjacent = "\w|[()]"
 
 leading = compile("({0})({1})".format(adjacent, "|".join(patterns)))
 trailing = compile("({0})({1})".format("|".join(patterns), adjacent))
+
 newline = compile("[\r\n]+")
-whitespace = compile(r"\s+")
+whitespace = compile("\s+")
+comment = compile("#[^\n]*")
 
 
 def parse(text: str) -> list:
     # Strip comments
-    text = sub("#[^\n]*", '', text)
+    text = comment.sub("", text)
 
     # Ensure operators and other special characters have leading and trailing spaces
     text_length = 0
@@ -47,7 +49,7 @@ def parse(text: str) -> list:
                 
                 indent_seq_len = len(line) - len(stripped)
                 if indent_seq_len == 0:
-                    raise RuntimeError("Invalid indentation on line {0}".format(i))
+                    raise RuntimeError("Invalid indentation on line '{0}'".format(line))
                 
                 indent_seq = line[:indent_seq_len]
 
@@ -61,16 +63,16 @@ def parse(text: str) -> list:
 
         # Check for incorrect indentation from previous line
         if (indent > prev_indent and not indent_increase) or (indent_increase and indent - prev_indent != 1):
-            raise RuntimeError("Invalid indentation on line {0}".format(i))
+            raise RuntimeError("Invalid indentation on line '{0}'".format(line))
 
         # Parse the line as a statement
         tokens = whitespace.split(line.strip())
         if not Statement.match(tokens):
-            raise RuntimeError("Parsing error on line {0}".format(i))
+            raise RuntimeError("Parsing error on line '{0}'".format(line.strip()))
 
         # Handle if/elif/else
         if (tokens[0] == ELIF or tokens[0] == ELSE) and not indent in allow_else:
-            raise RuntimeError("Cannot match {0} on line {0} to an if".format(tokens[0], i))
+            raise RuntimeError("Cannot match {0} to an if".format(tokens[0]))
 
         if tokens[0] == IF or tokens[0] == ELIF:
             allow_else.add(indent)
