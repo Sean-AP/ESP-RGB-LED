@@ -1,4 +1,6 @@
 # ESP-RGB-LED
+![CI](https://github.com/Sean-AP/ESP-RGB-LED/actions/workflows/main.yml/badge.svg)
+
 MicroPython module for controlling an RGB LED strip <br>
 For use with an ESP8266 or similar microcontroller <br>
 <br>
@@ -24,15 +26,13 @@ The grammar is (and must be) LL(1), which greatly simplifies the parser
 - Checked: The first symbol of a rule cannot be optional
 - Checked: Left recursion is disallowed
 <br>
-<br>
 
-The grammar describes a reduced Python-like language:
+The grammar describes a simplified Python-like language:
 - Indentation is significant 
   - The first indentation encountered will be used as the INDENT token for the rest of the file
 - Variables may be unsigned integers or booleans
 - Single-line comments are supported using '#'
 - expr rules are not typechecked
-<br>
 <br>
 
 ```
@@ -77,6 +77,7 @@ range : 'range' '(' expr rangeList? rangeList? ')' ;
 
 rangeList : ',' expr ;
 
+
 ID  : [a-zA-Z][a-zA-Z0-9_]* ;
 NUM : [0-9]+ ;
 
@@ -85,16 +86,24 @@ INTOP   : '+'  | '-'  | '*'  | '//' | '%' ;
 COMPARE : '<'  | '<=' | '>=' | '>' ; 
 EQUATE  : '==' | '!=' ;
 ```
-<br>
+
+Some notes:
+- waiting expects milliseconds, so wait(1000) will wait for 1s
+- save sets the output of the GPIO pins, so the lights only change colour when this is called
+- Argument specifiers cannot be used in range
+  - range(10, step=2) is not valid, use range(0, 10, 2) instead
+- Very simple type validation is done by operators on expression literals 
 
 ## Parsing and Execution
-The parser takes care of some syntax rules, such as ensuring elif/else has a matching if <br>
-The parser does not check types, so using a bool in place of an int may cause problems <br>
-The values of variables r, g, and b must be kept between 0 and 255 - these are the values passed to the pins when save is called <br>
+The parser handles some syntax rules, such as ensuring elif/else has a matching if <br>
+The parser does not check types <br>
+The values of variables r, g, and b must be kept between 0 and 255 
+- These are the values passed to the pins when save is called 
+<br>
 Errors are handled as follows:
-- The lights will turn red
-- If the error occurrs during parsing and a previous script is still executing, the script will continue to execute
-- If the error occurrs during execution, the lights will remain red until a new script is parsed and executed
+- The lights turn red
+- If the error occurrs during parsing and a previous script is still executing, that script continues to execute
+- If the error occurrs during execution, the lights remain red until a new script is parsed and executed
 <br>
 
 ## Example Script
