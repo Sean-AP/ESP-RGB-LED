@@ -9,78 +9,158 @@ def allow_omission(lexeme):
 def allow_many(lexeme):
         return isinstance(lexeme, tuple) and (lexeme[1] == MANY or lexeme[1] == ANY)
 
+# Determine which rule to use given the first token to match
+def match_first(rules: tuple, token: str) -> tuple:
+    stack = []
+    r_index = 0
+
+    while True:
+        rule = rules[r_index]
+
+        if allow_omission(rule[0]):
+            raise RuntimeError("Invalid grammar: optional leading token in a rule")
+
+        lexeme = rule[0][0] if isinstance(rule[0], tuple) else rule[0]
+
+        # First lexeme in rule is terminal
+        if isterminal(lexeme):
+            literal = isinstance(lexeme, str)
+            match = (literal and token == lexeme) or (not literal and lexeme.match(token))
+
+            if match:
+                while len(stack) > 0:
+                    rules, r_index = stack.pop()
+                    rule = rules[r_index]
+                return rule
+            
+            # No match, try next rule 
+            r_index += 1
+
+        # First lexeme in rule is non-terminal
+        elif rule in stack:
+            raise RuntimeError("Invalid grammar: left recursion detected")
+
+        else:
+            stack.append((rules, r_index))
+            rules = lexeme.rules
+            r_index = 0
+
+        # Reached end of rules without match
+        while r_index == len(rules):
+            if len(stack) == 0:
+                return None
+            
+            rules, r_index = stack.pop()
+            r_index += 1
+
 
 class Production:
     __slots__ = ()
-
     rules = ()
 
     @classmethod
-    def match(cls, tokens: list, index: int) -> int:
-        for rule in cls.rules:
-            index_prime = cls.match_rule(rule, tokens, index)
-            
-            if index_prime is not None:
-                return index_prime
+    def match(cls, tokens: list, t_index: int = 0) -> bool:
+        stack = []
+        rules = cls.rules
 
-        return None
+        omit_nt = False # The next non-terminal symbol can be omitted
+        many_t  = False # The next terminal symbol can be repeated
 
+        while True:
+            # Assume LL(1) grammar, so check 1 token to determine rule
+            matched_rule = match_first(rules, tokens[t_index])
+            r_index = 0
 
-    @staticmethod
-    def match_rule(rule: list, tokens: list, index: int) -> int:
-        # Copy the tokens to prevent mutating on a partial match
-        tokens_prime = list(tokens)
+            # If no rules matched, immediately reject unless omit flag is set and there is a parent state to load
+            if matched_rule is None:
+                if not omit_nt or len(stack) == 0:
+                    return False
 
-        i = 0
-        found = False
+                # Load parent non-terminal's state
+                matched_rule, r_index = stack.pop()
+                
+                while r_index + 1 == len(matched_rule):
+                    if len(stack) == 0:
+                        return False
 
-        # Find the first matching lexeme
-        while i < len(rule) and index < len(tokens):
-            lexeme = rule[i]
-            
-            can_omit = allow_omission(lexeme)
-            can_repeat = allow_many(lexeme)
+                    matched_rule, r_index = stack.pop()
+                r_index += 1
 
-            if isinstance(lexeme, tuple):
-                lexeme = lexeme[0]
+            # Match every token in the rule
+            while r_index < len(matched_rule):
+                lexeme = matched_rule[r_index]
+                can_omit = allow_omission(lexeme)
+                can_repeat = allow_many(lexeme)
 
-            if isinstance(lexeme, str):
-                result = match_terminal(lexeme, tokens_prime, index)
+                if isinstance(lexeme, tuple):
+                    lexeme = lexeme[0]
 
-            else:
-                result = (
-                    match_nonterminal(lexeme, tokens_prime, index) if issubclass(lexeme, Production) else 
-                    match_terminal(lexeme, tokens_prime, index))
+                # Terminal
+                if isterminal(lexeme):
+                    literal = isinstance(lexeme, str)
+                    match = (literal and tokens[t_index] == lexeme) or (not literal and lexeme.match(tokens[t_index]))
 
-            if result is None:
-                # In some cases, a non-match doesn't mean the rule fails:
-                # - ?,* modifier
-                # - +,* modifier with >= 1 occurrence already found
-                if not can_omit and not found:
-                    return None
+                    if match:
+                        # Create instance of regex symbols
+                        if not literal:
+                            tokens[t_index] = lexeme(tokens[t_index])
 
-            else:
-                index = result
+                        t_index += 1
+                        many_t = can_repeat
 
-            found = result is not None
+                        if not can_repeat:
+                            r_index += 1
 
-            # Only increment i if the next symbol definitely won't be the same:
-            # - the previous token failed to match
-            # - the previous token matched, and the lexeme does not have a +,* modifier
-            if not (found and can_repeat):         
-                i += 1
+                    # Can be omitted, or can repeat and have seen an occurrence
+                    elif can_omit or many_t:
+                        r_index += 1
 
-        # Check in case end of token stream but not end of rule:
-        # - the current lexeme is the last one, has a +,* modifier, and has already been matched
-        # - the remaining lexemes all have ?,* modifiers
-        if index >= len(tokens) and i < len(rule):
-            if i == len(rule) - 1 and allow_many(rule[i]) and found:
-                tokens[:index] = tokens_prime[:index]
-                return index
+                    else:
+                        return False
 
-            for lexeme in rule[i:]:
-                if not allow_omission(lexeme):
-                    return None
+                # Non-Terminal
+                else:
+                    # Push current state to the stack
+                    stack.append((matched_rule, r_index))
+                    rules = lexeme.rules
+                    omit_nt = can_omit
+                    break
 
-        tokens[:index] = tokens_prime[:index]
-        return index
+                # End of current rule
+                while r_index == len(matched_rule):
+                    # End of base rule - match iff all tokens have been consumed
+                    if len(stack) == 0:
+                        return t_index == len(tokens)
+
+                    # Load parent non-terminal's state
+                    matched_rule, r_index = stack.pop()
+                    omit_nt = allow_many(matched_rule[r_index])
+
+                    # Increment rule index if parent non-terminal is not repeatable
+                    if not omit_nt:
+                        r_index += 1
+
+                # End of token stream:
+                if t_index == len(tokens):
+                    # Check all remaining lexemes in the rule
+                    while r_index < len(matched_rule):
+                        # Check for + modifier and already matched
+                        if many_t or omit_nt:
+                            many_t = False
+                            omit_nt = False
+
+                        # Check for ?,* modifier
+                        elif not (allow_omission(matched_rule[r_index])):
+                            return False
+
+                        r_index += 1
+
+                        # End of current rule
+                        while r_index == len(matched_rule):
+                            # End of base rule - match
+                            if len(stack) == 0:
+                                return True
+
+                            # Load parent non-terminal's state
+                            matched_rule, r_index = stack.pop()
+                            r_index += 1
