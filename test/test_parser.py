@@ -22,7 +22,9 @@ class TestParser(unittest.TestCase):
             "save",
             "\n".join(["while r > 0:", "\tr -= 1"]),
             "\n".join(["if flag:", "\tr = 255"]),
-            "\n".join(["for i in range(256):", "\tr = i"])
+            "\n".join(["for i in range(256):", "\tr = i"]),
+            "r = 255 # Set r to 255"
+            "# This script only contains comments!"
         ]
 
         invalid = [
