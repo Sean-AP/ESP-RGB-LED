@@ -37,10 +37,10 @@ elif [ -z ${net} ]; then
 elif [ -z ${led} ]; then
   >&2 printf "Missing required argument 'led'\n"
 
-else;
-  for file in src/!(__init__).py; do
+else
+  for file in esp_rgb_led/!(__init__).py; do
       printf "Uploading $(basename $file)\n"
-      ampy --port $port --baud $baud put $(basename $file)
+      ampy --port $port --baud $baud put $file $(basename $file)
   done
 
   printf "Uploading ${net} as 'setup_net.py'\n"
