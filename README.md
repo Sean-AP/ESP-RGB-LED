@@ -7,65 +7,94 @@ For use with an ESP8266 or similar microcontroller <br>
 - Add a network SSID and password, port, and human-friendly name to setup_net
 - Add the output pin numbers and a maximum incoming file size to setup_led
 - Upload all the .py files in this project to the microcontroller
+  - upload.sh provides a way to do this using ampy
+  - Usage: ./upload.sh --port \<dir> --baud \<int> --net \<\*.py> --led \<\*.py> 
 
 With the files uploaded and main.py executing:
 - Send 'ping' to the open port to check the device name, current colour, and whether the lights are changing or static
-- Send scripts to the open port on to parse and run them
+- Send scripts to the open port to parse and run them
 
 Scripts can be written using the language described below <br>
 This prevents arbitrary code execution on the device <br>
 <br>
 
 ## Grammar
-The language is a subset of micropython <br>
-Therefore whitespace is significant, which is not shown in the grammar <br>
-Single-line comments are supported <br>
+The grammar is (and must be) LL(1), which greatly simplifies the parser
+- Not checked: The first symbol of every rule in a production must be unique
+- Checked: The first symbol of a rule cannot be optional
+- Checked: Left recursion is disallowed
+<br>
+<br>
+
+The grammar describes a reduced Python-like language:
+- Indentation is significant 
+  - The first indentation encountered will be used as the INDENT token for the rest of the file
+- Variables may be unsigned integers or booleans
+- Single-line comments are supported using '#'
+- expr rules are not typechecked
+<br>
+<br>
 
 ```
-Script := ping | Block
+script : statement+
 
-Block := Statement+
+statement : ID ASSIGN expr
+          | 'wait' '(' expr ')'
+          | 'save'
+          | 'while' expr        ':' INDENT script DEDENT
+          | 'if'    expr        ':' INDENT script DEDENT
+          | 'elif'  expr        ':' INDENT script DEDENT
+          | 'else'              ':' INDENT script DEDENT
+          | 'for' ID 'in' range ':' INDENT script DEDENT
+          ;
 
-Statement := ID ASSIGN Expr
-           | wait ( Expr )
-           | save
-           | while Expr : Block
-           | if Expr : Block
-           | elif Expr : Block
-           | else Expr : Block
-           | for ID in Range : Block
+expr : NUM     intExt?
+     | ID      exprExt?
+     | 'True'  boolExt?
+     | 'False' boolExt?
+     | 'random' '(' range ')' intExt?
+     | '(' expr ')' exprExt?
+     | 'not' expr
+     ;
 
-Expr := NUM ExprExt?
-      | ID ExprExt?
-      | TRUE ExprExt?
-      | FALSE ExprExt?
-      | NOT Expr ExprExt?
-      | random ( Range )
-      | ( Expr )
+exprExt : INTOP expr
+        | COMPARE expr
+        | EQUATE expr
+        | BOOLOP expr
+        ;
 
-ExprExt := INTOP Expr
-         | BOOLOP Expr
-         | COND Expr
+intExt  : INTOP expr
+        | COMPARE expr
+        | EQUATE expr
+        ;
 
-Range := range ( Expr RangeList? RangeList? )
+boolExt : EQUATE expr
+        | 'and' expr
+        | 'or' expr
+        ;
 
-RangeList := , Expr
+range : 'range' '(' expr rangeList? rangeList? ')' ;
 
-ID := [a-zA-Z][a-zA-Z0-9_]*
-NUM := [0-9]+
+rangeList : ',' expr ;
 
-INTOP := + | - | * | // | %
-BOOLOP := && | ||
-COND := < | <= | == | != | >= | > 
-ASSIGN := = | += | -= | *= | /= | %=
+ID  : [a-zA-Z][a-zA-Z0-9_]* ;
+NUM : [0-9]+ ;
+
+ASSIGN  : '='  | '+=' | '-=' | '*=' | '/=' | '%=' ;
+INTOP   : '+'  | '-'  | '*'  | '//' | '%' ;
+COMPARE : '<'  | '<=' | '>=' | '>' ; 
+EQUATE  : '==' | '!=' ;
 ```
 <br>
 
 ## Parsing and Execution
 The parser takes care of some syntax rules, such as ensuring elif/else has a matching if <br>
-The parser does not handle type checking, so using a bool in place of an int may cause problems <br>
+The parser does not check types, so using a bool in place of an int may cause problems <br>
 The values of variables r, g, and b must be kept between 0 and 255 - these are the values passed to the pins when save is called <br>
-If an error is encountered while parsing or executing, the lights will be set to red <br>
+Errors are handled as follows:
+- The lights will turn red
+- If the error occurrs during parsing and a previous script is still executing, the script will continue to execute
+- If the error occurrs during execution, the lights will remain red until a new script is parsed and executed
 <br>
 
 ## Example Script
