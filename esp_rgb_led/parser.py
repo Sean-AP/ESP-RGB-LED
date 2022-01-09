@@ -99,6 +99,9 @@ def parse(text: str) -> list:
         prev_indent = indent
         i += 1
 
+    if indent_increase:
+        raise RuntimeError("Empty statement on line {0}".format(i))
+
     return script
 
 
