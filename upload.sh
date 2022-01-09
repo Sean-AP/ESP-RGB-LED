@@ -38,7 +38,7 @@ elif [ -z ${led} ]; then
   >&2 printf "Missing required argument 'led'\n"
 
 else
-  for file in esp_rgb_led/!(__init__).py; do
+  for file in esp_rgb_led/*.py; do
       printf "Uploading $(basename $file)\n"
       ampy --port $port --baud $baud put $file $(basename $file)
   done
