@@ -70,10 +70,9 @@ class ID(Symbol):
     def match(cls, token):
         # Prevent conflicting matches with keywords 
         return cls.regex.match(token) is not None and not (
-            token == TRUE   or token == FALSE or
-            token == WAIT   or token == SAVE  or
-            token == WHILE  or token == IF    or
-            token == ELIF   or token == ELSE  or
-            token == FOR    or token == IN    or
-            token == RANDOM or token == RANGE
+            token == AND    or token == ELIF  or token == ELSE  or 
+            token == FALSE  or token == FOR   or token == IF    or
+            token == IN     or token == NOT   or token == OR    or
+            token == RANDOM or token == RANGE or token == SAVE  or
+            token == TRUE   or token == WAIT  or token == WHILE
         )

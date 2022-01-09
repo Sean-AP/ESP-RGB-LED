@@ -1,6 +1,6 @@
 from re import compile, sub
-from symbols import IF, ELIF, ELSE, FOR, WAIT, SAVE, ASSIGN, ID, INTOP, BOOLOP, COND, COLON
-from productions import Statement
+from .symbols import ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE, FOR, ID, IF, INTOP, LBRACKET, RBRACKET, SAVE, WAIT 
+from .productions import Statement
 
 patterns = [COND.literal, ASSIGN.literal, INTOP.literal, BOOLOP.literal, r"[\(\):,]"]
 leading = compile("(\w|[\(\)])({0})".format("|".join(patterns)))

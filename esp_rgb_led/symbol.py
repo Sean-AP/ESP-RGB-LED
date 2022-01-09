@@ -1,33 +1,17 @@
-# Terminal and non-terminal symbol definitions
-
+# Regex-based symbol for capturing terminals
+# Strings are used for literal tokens
 class Symbol:
-    # Regex-based symbol for capturing terminals
     __slots__ = "value"
-
     literal = ""
     regex = None
+
+    def __init__(self, value):
+        self.value = value
 
     @classmethod
     def match(cls, token):
         return cls.regex.match(token) is not None
 
 
-def match_terminal(symbol, tokens: list, index: int) -> int:
-    # Consume the token if it matches the terminal symbol
-    if isinstance(symbol, str):
-        return index + 1 if tokens[index] == symbol else None
-
-    elif symbol.match(tokens[index]):
-        # Create a new instance of the terminal symbol, saving the token that it matched
-        match = symbol()
-        match.value = tokens[index]
-
-        tokens[index] = match
-        return index + 1
-
-    else:
-        return None
-
-
-def match_nonterminal(symbol, tokens: list, index: int) -> int:
-        return symbol.match(tokens, index)
+def isterminal(lexeme):
+    return isinstance(lexeme, str) or issubclass(lexeme, Symbol)

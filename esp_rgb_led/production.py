@@ -1,8 +1,7 @@
 # Production definition
 
-from symbol import match_terminal, match_nonterminal
-from symbols import ANY, MANY, MAYBE
-
+from .symbol import isterminal
+from .symbols import ANY, MANY, MAYBE
 
 def allow_omission(lexeme):
         return isinstance(lexeme, tuple) and (lexeme[1] == MAYBE or lexeme[1] == ANY)
