@@ -1,7 +1,7 @@
 # The productions in the light language grammar
 
-from .production import Production
-from .symbols import (
+from production import Production
+from symbols import (
     AND, ANY, ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE,
     FALSE, FOR, ID, IF, IN, INTOP, LBRACKET, MANY, MAYBE, NOT, NUM, OR, 
     RANDOM, RANGE, RBRACKET, SAVE, TRUE, WAIT, WHILE)

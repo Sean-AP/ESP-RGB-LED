@@ -1,7 +1,7 @@
 # The symbols in the light language grammar
 
 from re import compile
-from .symbol import Symbol
+from symbol import Symbol
 
 # Literal keywords
 

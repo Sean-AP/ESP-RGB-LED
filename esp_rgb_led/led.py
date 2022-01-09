@@ -1,4 +1,4 @@
-from .setup_led import R_PIN, G_PIN, B_PIN
+from setup_led import R_PIN, G_PIN, B_PIN
 from machine import Pin, PWM
 from math import ceil, log
 from random import getrandbits

@@ -1,4 +1,4 @@
-from .setup_net import SSID, PASS
+from setup_net import SSID, PASS
 from network import WLAN, STA_IF
 
 if __name__ == "__main__":
