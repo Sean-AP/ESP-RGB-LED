@@ -7,7 +7,7 @@ adjacent = "[{0}]".format("".join(["\w", "\\", LBRACKET, "\\", RBRACKET]))
 
 leading = compile("({0})({1})".format(adjacent, "|".join(patterns)))
 trailing = compile("({0})({1})".format("|".join(patterns), adjacent))
-newline = compile("(\r?\n)+")
+newline = compile("[\r\n]+")
 whitespace = compile(r"\s+")
 
 
