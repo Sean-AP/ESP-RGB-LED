@@ -2,9 +2,12 @@ from re import compile, sub
 from .symbols import ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE, FOR, ID, IF, INTOP, LBRACKET, RBRACKET, SAVE, WAIT 
 from .productions import Statement
 
-patterns = [COND.literal, ASSIGN.literal, INTOP.literal, BOOLOP.literal, r"[\(\):,]"]
-leading = compile("(\w|[\(\)])({0})".format("|".join(patterns)))
-trailing = compile("({0})(\w|[\(\)])".format("|".join(patterns)))
+patterns = [ASSIGN.literal, INTOP.literal, COMPARE.literal, EQUATE.literal, "\\" + LBRACKET, "\\" + RBRACKET, COLON, COMMA]
+adjacent = "[{0}]".format("".join(["\w", "\\", LBRACKET, "\\", RBRACKET]))
+
+leading = compile("({0})({1})".format(adjacent, "|".join(patterns)))
+trailing = compile("({0})({1})".format("|".join(patterns), adjacent))
+newline = compile("(\r?\n)+")
 whitespace = compile(r"\s+")
 
 
@@ -20,7 +23,7 @@ def parse(text: str) -> list:
         text = trailing.sub(r"\1 \2", text)
         
     # Split by line and discard empty lines - each line should represent a complete statement
-    lines = (line for line in text.split('\n') if len(line) > 0 and not line.isspace())
+    lines = (line for line in newline.split(text) if len(line) > 0 and not line.isspace())
     script = "async def __script(vars, led, lookup, random):\n"
 
     # Track state
@@ -33,6 +36,7 @@ def parse(text: str) -> list:
     for_loop = False        # Is the current line declaring a for loop?
     
     # Begin parsing
+    i = 0
     for line in lines:
         indent = 0
 
@@ -43,7 +47,7 @@ def parse(text: str) -> list:
                 
                 indent_seq_len = len(line) - len(stripped)
                 if indent_seq_len == 0:
-                    raise RuntimeError("Invalid indentation on line '{0}'".format(stripped))
+                    raise RuntimeError("Invalid indentation on line {0}".format(i))
                 
                 indent_seq = line[:indent_seq_len]
 
@@ -57,18 +61,16 @@ def parse(text: str) -> list:
 
         # Check for incorrect indentation from previous line
         if (indent > prev_indent and not indent_increase) or (indent_increase and indent - prev_indent != 1):
-            raise RuntimeError("Invalid indentation on line '{0}'".format(line))
+            raise RuntimeError("Invalid indentation on line {0}".format(i))
 
         # Parse the line as a statement
         tokens = whitespace.split(line)
-        result = Statement.match(tokens, 0)
-
-        if result is None:
-            raise RuntimeError("Failed to parse script: error with line '{0}'".format(line))
+        if not Statement.match(tokens):
+            raise RuntimeError("Parsing error on line {0}".format(i))
 
         # Handle if/elif/else
         if (tokens[0] == ELIF or tokens[0] == ELSE) and not indent in allow_else:
-            raise RuntimeError("Cannot match conditional branch to an 'if' token on line '{0}'".format(line))
+            raise RuntimeError("Cannot match {0} on line {0} to an if".format(tokens[0], i))
 
         if tokens[0] == IF or tokens[0] == ELIF:
             allow_else.add(indent)
@@ -87,7 +89,7 @@ def parse(text: str) -> list:
             # Handle the first ID in a for loop separately
             if for_loop and isinstance(token, ID):
                 for_loop = False
-                parsed.append(token.value + " ")
+                parsed.append("{0} ".format(token.value))
                 extra = "{0}\tvars[\"{1}\"] = {2}".format(tabs, token.value, token.value)
             
             else:
@@ -95,6 +97,7 @@ def parse(text: str) -> list:
 
         script = "".join([script, tabs, "".join(parsed), '\n', extra])
         prev_indent = indent
+        i += 1
 
     return script
 
@@ -112,7 +115,7 @@ def process_token(token, tabs) -> str:
 
     # Return the matched token
     elif isinstance(token, str):
-        return token + " "
+        return "{0} ".format(token)
     
     else:
-        return token.value + " "
+        return "{0} ".format(token.value)
