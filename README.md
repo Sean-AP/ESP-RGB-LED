@@ -1,5 +1,5 @@
 # ESP-RGB-LED
-![CI](https://github.com/Sean-AP/ESP-RGB-LED/actions/workflows/main.yml/badge.svg)
+![Tests](https://github.com/Sean-AP/ESP-RGB-LED/actions/workflows/main.yml/badge.svg)
 
 MicroPython module for controlling an RGB LED strip <br>
 For use with an ESP8266 or similar microcontroller <br>
