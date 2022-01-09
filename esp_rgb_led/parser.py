@@ -1,6 +1,6 @@
 from re import compile, sub
-from .symbols import ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE, FOR, ID, IF, INTOP, LBRACKET, RBRACKET, SAVE, WAIT 
-from .productions import Statement
+from symbols import ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE, FOR, ID, IF, INTOP, LBRACKET, RBRACKET, SAVE, WAIT 
+from productions import Statement
 
 patterns = [ASSIGN.literal, INTOP.literal, COMPARE.literal, EQUATE.literal, "\\" + LBRACKET, "\\" + RBRACKET, COLON, COMMA]
 adjacent = "[{0}]".format("".join(["\w", "\\", LBRACKET, "\\", RBRACKET]))
@@ -13,7 +13,7 @@ whitespace = compile(r"\s+")
 
 def parse(text: str) -> list:
     # Strip comments
-    text = sub("#[^\n]*\n", '\n', text)
+    text = sub("#[^\n]*", '', text)
 
     # Ensure operators and other special characters have leading and trailing spaces
     text_length = 0
@@ -25,9 +25,6 @@ def parse(text: str) -> list:
     # Split by line and discard empty lines - each line should represent a complete statement
     lines = (line for line in newline.split(text) if len(line) > 0 and not line.isspace())
     script = "async def __script(vars, led, lookup, random):\n"
-
-    if len(lines) == 0:
-        return "{0}\tpass".format(script)
 
     # Track state
     prev_indent = 0
@@ -67,7 +64,7 @@ def parse(text: str) -> list:
             raise RuntimeError("Invalid indentation on line {0}".format(i))
 
         # Parse the line as a statement
-        tokens = whitespace.split(line)
+        tokens = whitespace.split(line.strip())
         if not Statement.match(tokens):
             raise RuntimeError("Parsing error on line {0}".format(i))
 
@@ -102,8 +99,13 @@ def parse(text: str) -> list:
         prev_indent = indent
         i += 1
 
+    # Final line opens a new block
     if indent_increase:
         raise RuntimeError("Empty statement on line {0}".format(i))
+
+    # No lines given
+    if i == 0:
+        return "{0}\tpass".format(script)
 
     return script
 
