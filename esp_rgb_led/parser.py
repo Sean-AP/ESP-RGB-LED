@@ -92,7 +92,7 @@ def parse(text: str) -> list:
             if for_loop and isinstance(token, ID):
                 for_loop = False
                 parsed.append("{0} ".format(token.value))
-                extra = "{0}\tvars[\"{1}\"] = {2}".format(tabs, token.value, token.value)
+                extra = "{0}\tvars[\"{1}\"] = {2}\n".format(tabs, token.value, token.value)
             
             else:
                 parsed.append(process_token(token, tabs))
