@@ -1,4 +1,7 @@
+# Imports used by executed script
 from led import led, lookup, random
+from math import sin, radians, floor, ceil
+# Imports for parsing/executing scripts
 from parser import parse
 from setup_net import NAME, PORT
 from setup_led import MAX_FILESIZE
@@ -55,7 +58,7 @@ async def main(vars, reader, writer):
 # Parse the given buffer, cancelling any ongoing parsing task
 async def parse_buf(read: int):
     global buf, parse_task
-
+    
     if parse_task is not None:
         print("Cancelling current parse task")
         parse_task.cancel()

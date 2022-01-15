@@ -5,12 +5,14 @@ from symbol import Symbol
 
 # Literal keywords
 
-AND = 'and'
+AND = "and"
+CEIL = "ceil"
 COLON = ":"
 COMMA = ","
 ELIF = "elif"
 ELSE = "else"
 FALSE = "False"
+FLOOR = "floor"
 FOR = "for"
 IF = "if"
 IN = "in"
@@ -18,17 +20,20 @@ LBRACKET = "("
 MAX = "max"
 MIN = "min"
 NOT = "not"
-OR = 'or'
+OR = "or"
+RAD = "rad"
 RBRACKET = ")"
 RANDOM = "random"
 RANGE = "range"
+ROUND = "round"
 SAVE = "save"
+SIN = "sin"
 TRUE = "True"
 WAIT = "wait"
 WHILE = "while"
 
 keywords = [
-    AND, ELIF, ELSE, FALSE, FOR, IF, IN, MAX, MIN, NOT, OR, RANDOM, RANGE, SAVE, TRUE, WAIT, WHILE
+    AND, CEIL, ELIF, ELSE, FALSE, FLOOR, FOR, IF, IN, MAX, MIN, NOT, OR, RAD, RANDOM, RANGE, ROUND, SAVE, SIN, TRUE, WAIT, WHILE
 ]
 
 # Modifiers
@@ -54,7 +59,7 @@ class ASSIGN(Symbol):
 
 class INTOP(Symbol):
     __slots__ = ()
-    literal = "\+|\-|\*|\/\/|%"
+    literal = "\+|\-|\*|\/|%"
     regex = compile(wholetext(literal))
 
 class COMPARE(Symbol):

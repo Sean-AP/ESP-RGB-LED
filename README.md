@@ -57,6 +57,11 @@ expr : NUM     exprExt?
      | 'random' '(' range ')' exprExt?
      | 'max' '(' expr ',' expr ')' exprExt?
      | 'min' '(' expr ',' expr ')' exprExt?
+     | 'eound' '(' expr ')' exprExt?
+     | 'ceil' '(' expr ')' exprExt?
+     | 'floor' '(' expr ')' exprExt?
+     | 'rad' '(' expr ')' exprExt?
+     | 'sin' '(' expr ')' exprExt?
      | '(' expr ')' exprExt?
      ;
 

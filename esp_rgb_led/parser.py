@@ -1,5 +1,5 @@
-from re import compile, sub
-from symbols import ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE, FOR, ID, IF, INTOP, LBRACKET, RBRACKET, SAVE, WAIT 
+from re import compile
+from symbols import ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE, FOR, ID, IF, INTOP, LBRACKET, RAD, RBRACKET, SAVE, WAIT 
 from productions import Statement
 
 patterns = [ASSIGN.literal, INTOP.literal, COMPARE.literal, EQUATE.literal, "\{0}".format(LBRACKET), "\{0}".format(RBRACKET), COLON, COMMA]
@@ -122,6 +122,9 @@ def process_token(token, tabs) -> str:
 
     elif token == SAVE:
         return tabs.join(["led[0].duty(lookup[vars[\"r\"]])\n", "led[1].duty(lookup[vars[\"g\"]])\n", "led[2].duty(lookup[vars[\"b\"]])"])
+
+    elif token == RAD:
+        return "radians"
 
     # Return the matched token
     elif isinstance(token, str):

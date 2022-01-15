@@ -2,9 +2,9 @@
 
 from production import Production
 from symbols import (
-    AND, ANY, ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE,
-    FALSE, FOR, ID, IF, IN, INTOP, LBRACKET, MANY, MAYBE, MAX, MIN,
-    NOT, NUM, OR, RANDOM, RANGE, RBRACKET, SAVE, TRUE, WAIT, WHILE)
+    AND, ANY, ASSIGN, CEIL, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE,
+    FALSE, FLOOR, FOR, ID, IF, IN, INTOP, LBRACKET, MANY, MAYBE, MAX, MIN,
+    NOT, NUM, OR, RAD, RANDOM, RANGE, ROUND, RBRACKET, SAVE, SIN, TRUE, WAIT, WHILE)
 
 class Statement(Production):
     __slots__ = ()
@@ -44,6 +44,11 @@ Expr.rules = (
     (RANDOM, LBRACKET, Range, RBRACKET, (ExprExt, MAYBE)),
     (MAX, LBRACKET, Expr, COMMA, Expr, RBRACKET, (ExprExt, MAYBE)),
     (MIN, LBRACKET, Expr, COMMA, Expr, RBRACKET, (ExprExt, MAYBE)),
+    (ROUND, LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)),
+    (CEIL, LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)),
+    (FLOOR, LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)),
+    (RAD, LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)),
+    (SIN, LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)),
     (LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)))
 
 ExprExt.rules = (
