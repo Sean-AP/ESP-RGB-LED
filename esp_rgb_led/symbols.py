@@ -15,6 +15,8 @@ FOR = "for"
 IF = "if"
 IN = "in"
 LBRACKET = "("
+MAX = "max"
+MIN = "min"
 NOT = "not"
 OR = 'or'
 RBRACKET = ")"
@@ -24,6 +26,10 @@ SAVE = "save"
 TRUE = "True"
 WAIT = "wait"
 WHILE = "while"
+
+keywords = [
+    AND, ELIF, ELSE, FALSE, FOR, IF, IN, MAX, MIN, NOT, OR, RANDOM, RANGE, SAVE, TRUE, WAIT, WHILE
+]
 
 # Modifiers
 
@@ -69,10 +75,4 @@ class ID(Symbol):
     @classmethod
     def match(cls, token):
         # Prevent conflicting matches with keywords 
-        return cls.regex.match(token) is not None and not (
-            token == AND    or token == ELIF  or token == ELSE  or 
-            token == FALSE  or token == FOR   or token == IF    or
-            token == IN     or token == NOT   or token == OR    or
-            token == RANDOM or token == RANGE or token == SAVE  or
-            token == TRUE   or token == WAIT  or token == WHILE
-        )
+        return cls.regex.match(token) is not None and not any([token == word for word in keywords])

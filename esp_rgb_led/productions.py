@@ -3,8 +3,8 @@
 from production import Production
 from symbols import (
     AND, ANY, ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE,
-    FALSE, FOR, ID, IF, IN, INTOP, LBRACKET, MANY, MAYBE, NOT, NUM, OR, 
-    RANDOM, RANGE, RBRACKET, SAVE, TRUE, WAIT, WHILE)
+    FALSE, FOR, ID, IF, IN, INTOP, LBRACKET, MANY, MAYBE, MAX, MIN,
+    NOT, NUM, OR, RANDOM, RANGE, RBRACKET, SAVE, TRUE, WAIT, WHILE)
 
 class Statement(Production):
     __slots__ = ()
@@ -13,9 +13,6 @@ class Expr(Production):
     __slots__ = ()
 
 class ExprExt(Production):
-    __slots__ = ()
-
-class IntExt(Production):
     __slots__ = ()
 
 class BoolExt(Production):
@@ -39,22 +36,20 @@ Statement.rules = (
     (FOR, ID, IN, Range, COLON))
 
 Expr.rules = (
-    (NUM, (IntExt, MAYBE)),
+    (NUM, (ExprExt, MAYBE)),
     (ID, (ExprExt, MAYBE)),
     (TRUE, (BoolExt, MAYBE)),
     (FALSE, (BoolExt, MAYBE)),
-    (RANDOM, LBRACKET, Range, RBRACKET, (IntExt, MAYBE)),
-    (LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)),
-    (NOT, Expr))
+    (NOT, Expr),
+    (RANDOM, LBRACKET, Range, RBRACKET, (ExprExt, MAYBE)),
+    (MAX, LBRACKET, Expr, COMMA, Expr, RBRACKET, (ExprExt, MAYBE)),
+    (MIN, LBRACKET, Expr, COMMA, Expr, RBRACKET, (ExprExt, MAYBE)),
+    (LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)))
 
 ExprExt.rules = (
-    (IntExt,),
-    (BoolExt,))
-
-IntExt.rules = (
     (INTOP, Expr),
     (COMPARE, Expr),
-    (EQUATE, Expr))
+    (BoolExt,))
 
 BoolExt.rules = (
     (EQUATE, Expr),

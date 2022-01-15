@@ -79,6 +79,7 @@ class TestParser(unittest.TestCase):
             "r = 255",
             "r = g",
             "r = random(range(256))",
+            "r = max(g, b)",
             "flag = True",
             "flag = False",
             "flag = not True",
@@ -101,7 +102,9 @@ class TestParser(unittest.TestCase):
             "r = ((g * g) + b) % 255",
             "r = random(range(128)) + 128",
             "r = (((((250)+1)+1)+1)+1)+1",
-            "flag = (True and not False) and (not True or False)"
+            "r = max(max(r, g), b)",
+            "flag = (True and not False) and (not True or False)",
+            "flag = r >= 128 and g < r and b == 255"
         ]
 
         invalid = [

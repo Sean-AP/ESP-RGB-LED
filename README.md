@@ -49,24 +49,20 @@ statement : ID ASSIGN expr
           | 'for' ID 'in' range ':' INDENT script DEDENT
           ;
 
-expr : NUM     intExt?
+expr : NUM     exprExt?
      | ID      exprExt?
      | 'True'  boolExt?
      | 'False' boolExt?
-     | 'random' '(' range ')' intExt?
-     | '(' expr ')' exprExt?
      | 'not' expr
+     | 'random' '(' range ')' exprExt?
+     | 'max' '(' expr ',' expr ')' exprExt?
+     | 'min' '(' expr ',' expr ')' exprExt?
+     | '(' expr ')' exprExt?
      ;
 
 exprExt : INTOP expr
         | COMPARE expr
-        | EQUATE expr
-        | BOOLOP expr
-        ;
-
-intExt  : INTOP expr
-        | COMPARE expr
-        | EQUATE expr
+        | boolExt
         ;
 
 boolExt : EQUATE expr
