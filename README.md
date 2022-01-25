@@ -42,6 +42,7 @@ script : statement+
 statement : ID ASSIGN expr
           | 'wait' '(' expr ')'
           | 'save'
+          | 'break'
           | 'while' expr        ':' INDENT script DEDENT
           | 'if'    expr        ':' INDENT script DEDENT
           | 'elif'  expr        ':' INDENT script DEDENT
@@ -94,7 +95,6 @@ Some notes:
 - save sets the output of the GPIO pins, so the lights only change colour when this is called
 - Argument specifiers cannot be used in range
   - range(10, step=2) is not valid, use range(0, 10, 2) instead
-- Very simple type validation is done by operators on expression literals 
 
 ## Parsing and Execution
 The parser handles some syntax rules, such as ensuring elif/else has a matching if <br>

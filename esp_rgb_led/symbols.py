@@ -6,6 +6,7 @@ from symbol import Symbol
 # Literal keywords
 
 AND = "and"
+BREAK = "break"
 CEIL = "ceil"
 COLON = ":"
 COMMA = ","
@@ -33,7 +34,7 @@ WAIT = "wait"
 WHILE = "while"
 
 keywords = [
-    AND, CEIL, ELIF, ELSE, FALSE, FLOOR, FOR, IF, IN, MAX, MIN, NOT, OR, RAD, RANDOM, RANGE, ROUND, SAVE, SIN, TRUE, WAIT, WHILE
+    AND, BREAK, CEIL, ELIF, ELSE, FALSE, FLOOR, FOR, IF, IN, MAX, MIN, NOT, OR, RAD, RANDOM, RANGE, ROUND, SAVE, SIN, TRUE, WAIT, WHILE
 ]
 
 # Modifiers

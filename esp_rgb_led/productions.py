@@ -2,7 +2,7 @@
 
 from production import Production
 from symbols import (
-    AND, ANY, ASSIGN, CEIL, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE,
+    AND, ANY, ASSIGN, BREAK, CEIL, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE,
     FALSE, FLOOR, FOR, ID, IF, IN, INTOP, LBRACKET, MANY, MAYBE, MAX, MIN,
     NOT, NUM, OR, RAD, RANDOM, RANGE, ROUND, RBRACKET, SAVE, SIN, TRUE, WAIT, WHILE)
 
@@ -29,6 +29,7 @@ Statement.rules = (
     (ID, ASSIGN, Expr),
     (WAIT, LBRACKET, Expr, RBRACKET),
     (SAVE, ),
+    (BREAK, ),
     (WHILE, Expr, COLON),
     (IF, Expr, COLON),
     (ELIF, Expr, COLON),
