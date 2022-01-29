@@ -60,7 +60,8 @@ ExprExt.rules = (
 BoolExt.rules = (
     (EQUATE, Expr),
     (AND, Expr),
-    (OR, Expr))
+    (OR, Expr),
+    (IF, Expr, ELSE, Expr))
 
 Range.rules = (
     (RANGE, LBRACKET, Expr, (RangeList, MAYBE), (RangeList, MAYBE), RBRACKET),)

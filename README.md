@@ -58,7 +58,7 @@ expr : NUM     exprExt?
      | 'random' '(' range ')' exprExt?
      | 'max' '(' expr ',' expr ')' exprExt?
      | 'min' '(' expr ',' expr ')' exprExt?
-     | 'eound' '(' expr ')' exprExt?
+     | 'round' '(' expr ')' exprExt?
      | 'ceil' '(' expr ')' exprExt?
      | 'floor' '(' expr ')' exprExt?
      | 'rad' '(' expr ')' exprExt?
@@ -74,6 +74,7 @@ exprExt : INTOP expr
 boolExt : EQUATE expr
         | 'and' expr
         | 'or' expr
+        | 'if' expr 'else' expr
         ;
 
 range : 'range' '(' expr rangeList? rangeList? ')' ;
