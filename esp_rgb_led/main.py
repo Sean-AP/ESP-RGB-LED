@@ -41,9 +41,14 @@ async def main(vars, reader, writer):
     except uasyncio.CancelledError:
         print("Task cancelled by a new connection")
 
-    # Catch any other error
+    # Catch any other error, turning the LEDs red if there is no script to interrupt
     except Exception as e:
-        fail(str(e))
+        print(str(e))
+
+        if exec_task is None:
+            led[0].duty(1023)
+            led[1].duty(0)
+            led[2].duty(0)
 
     # Close streams on completion
     finally:
@@ -97,8 +102,6 @@ async def exec_func(func: str):
     gc.collect()
     gc.threshold(gc.mem_free() // 4 + gc.mem_alloc())
 
-    
-
 
 # Respond to a ping request from the site
 # The program will write the device name, whether the colour is currently static, the current colour
@@ -112,15 +115,6 @@ async def ping_response(task, vars: dict, writer):
     ))
 
     await writer.drain()
-
-
-# Set LEDs to red and print error message on failure
-def fail(err: str):
-    print(err)
-
-    led[0].duty(1023)
-    led[1].duty(0)
-    led[2].duty(0)
 
 
 # On executing, start a TCP socket
