@@ -28,7 +28,7 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-if [ -z ${baud} ]; then
+if [ -z ${port} ]; then
   >&2 printf "Missing required argument 'port'\n"
 elif [ -z ${baud} ]; then
   >&2 printf "Missing required argument 'baud'\n"
@@ -38,7 +38,7 @@ elif [ -z ${led} ]; then
   >&2 printf "Missing required argument 'led'\n"
 
 else
-  for file in esp_rgb_led/*.py; do
+  for file in src/*.py; do
       printf "Uploading $(basename $file)\n"
       ampy --port $port --baud $baud put $file $(basename $file)
   done

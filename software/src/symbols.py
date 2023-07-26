@@ -7,34 +7,31 @@ from symbol import Symbol
 
 AND = "and"
 BREAK = "break"
-CEIL = "ceil"
 COLON = ":"
 COMMA = ","
 ELIF = "elif"
 ELSE = "else"
 FALSE = "False"
-FLOOR = "floor"
 FOR = "for"
 IF = "if"
 IN = "in"
 LBRACKET = "("
+LED = "led"
 MAX = "max"
 MIN = "min"
 NOT = "not"
 OR = "or"
-RAD = "rad"
 RBRACKET = ")"
 RANDOM = "random"
 RANGE = "range"
 ROUND = "round"
-SAVE = "save"
 SIN = "sin"
 TRUE = "True"
 WAIT = "wait"
 WHILE = "while"
 
 keywords = [
-    AND, BREAK, CEIL, ELIF, ELSE, FALSE, FLOOR, FOR, IF, IN, MAX, MIN, NOT, OR, RAD, RANDOM, RANGE, ROUND, SAVE, SIN, TRUE, WAIT, WHILE
+    AND, BREAK, ELIF, ELSE, FALSE, FOR, IF, IN, LED, MAX, MIN, NOT, OR, RANDOM, RANGE, ROUND, SIN, TRUE, WAIT, WHILE
 ]
 
 # Modifiers
@@ -60,7 +57,7 @@ class ASSIGN(Symbol):
 
 class INTOP(Symbol):
     __slots__ = ()
-    literal = "\+|\-|\*|\/|%"
+    literal = "\+|\-|\*|\/\/|%"
     regex = compile(wholetext(literal))
 
 class COMPARE(Symbol):

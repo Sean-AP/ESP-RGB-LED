@@ -1,6 +1,22 @@
-**/__pycache__/
+# --------
+# Software
+# --------
+# Python artefacts
+software/**/__pycache__/
 
-# Ignore user-specific setup files, except the templates
-esp_rgb_led/setup/*
-!esp_rgb_led/setup/setup_net.py
-!esp_rgb_led/setup/setup_led.py
+# Non-template setup files (they will contain WiFi credentials!)
+software/src/setup/*
+!software/src/setup/*_template.py
+
+# ---
+# PCB
+# ---
+# Backups and caches
+pcb/ESP_RGB_LED-backups/
+pcb/fp-info-cache
+
+# -------
+# Housing
+# -------
+# Slicer output
+housing/*.STL

@@ -5,8 +5,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "esp_rgb_led"))
 import unittest
 import parser
 
-
-
 class TestParser(unittest.TestCase):
 
     def try_parse(self, valid, invalid):
@@ -25,7 +23,7 @@ class TestParser(unittest.TestCase):
         valid = [
             "r = 255",
             "wait(10)",
-            "save",
+            "led(0, 0, 0)",
             "\n".join(["while r > 0:", "\tr -= 1"]),
             "\n".join(["if flag:", "\tr = 255"]),
             "\n".join(["for i in range(256):", "\tr = i"]),
@@ -58,7 +56,7 @@ class TestParser(unittest.TestCase):
                 "elif r < 128:", "\tr *= 2", 
                 "elif r == 128:", "\tr = 255", 
                 "else:", "\tr = 0", 
-                "save"
+                "led(r, g, b)"
             ])
         ]
 
@@ -148,7 +146,7 @@ class TestParser(unittest.TestCase):
         ]
 
         invalid = [
-            "save = 255",  # keyword
+            "led = 255",  # keyword
             "wait = 255",  # keyword
             "+ = 255",     # operator
             "1 = 1",       # numeric

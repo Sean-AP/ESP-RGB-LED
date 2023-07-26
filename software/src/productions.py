@@ -2,9 +2,9 @@
 
 from production import Production
 from symbols import (
-    AND, ANY, ASSIGN, BREAK, CEIL, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE,
-    FALSE, FLOOR, FOR, ID, IF, IN, INTOP, LBRACKET, MANY, MAYBE, MAX, MIN,
-    NOT, NUM, OR, RAD, RANDOM, RANGE, ROUND, RBRACKET, SAVE, SIN, TRUE, WAIT, WHILE)
+    AND, ANY, ASSIGN, BREAK, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE,
+    FALSE, FOR, ID, IF, IN, INTOP, LBRACKET, LED, MANY, MAYBE, MAX, MIN,
+    NOT, NUM, OR, RANDOM, RANGE, ROUND, RBRACKET, SIN, TRUE, WAIT, WHILE)
 
 class Statement(Production):
     __slots__ = ()
@@ -28,7 +28,7 @@ class RangeList(Production):
 Statement.rules = (
     (ID, ASSIGN, Expr),
     (WAIT, LBRACKET, Expr, RBRACKET),
-    (SAVE, ),
+    (LED, LBRACKET, Expr, COMMA, Expr, COMMA, Expr, RBRACKET),
     (BREAK, ),
     (WHILE, Expr, COLON),
     (IF, Expr, COLON),
@@ -46,9 +46,6 @@ Expr.rules = (
     (MAX, LBRACKET, Expr, COMMA, Expr, RBRACKET, (ExprExt, MAYBE)),
     (MIN, LBRACKET, Expr, COMMA, Expr, RBRACKET, (ExprExt, MAYBE)),
     (ROUND, LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)),
-    (CEIL, LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)),
-    (FLOOR, LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)),
-    (RAD, LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)),
     (SIN, LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)),
     (LBRACKET, Expr, RBRACKET, (ExprExt, MAYBE)))
 

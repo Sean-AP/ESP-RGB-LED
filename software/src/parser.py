@@ -1,5 +1,5 @@
 from re import compile
-from symbols import ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE, FOR, ID, IF, INTOP, LBRACKET, RAD, RBRACKET, SAVE, WAIT 
+from symbols import ASSIGN, COLON, COMMA, COMPARE, ELIF, ELSE, EQUATE, FOR, ID, IF, INTOP, LBRACKET, LED, RBRACKET, WAIT 
 from productions import Statement
 
 patterns = [ASSIGN.literal, INTOP.literal, COMPARE.literal, EQUATE.literal, "\{0}".format(LBRACKET), "\{0}".format(RBRACKET), COLON, COMMA]
@@ -26,7 +26,7 @@ def parse(text: str) -> list:
         
     # Split by line and discard empty lines - each line should represent a complete statement
     lines = (line for line in newline.split(text) if len(line) > 0 and not line.isspace())
-    script = "async def __script(vars, led, lookup, random):\n"
+    script = "async def __script(vars, pins, lookup):\n"
 
     # Track state
     prev_indent = 0
@@ -95,7 +95,7 @@ def parse(text: str) -> list:
                 extra = "{0}\tvars[\"{1}\"] = {2}\n".format(tabs, token.value, token.value)
             
             else:
-                parsed.append(process_token(token, tabs))
+                parsed.append(process_token(token))
 
         script = "".join([script, tabs, "".join(parsed), '\n', extra])
         prev_indent = indent
@@ -112,7 +112,7 @@ def parse(text: str) -> list:
     return script
 
 
-def process_token(token, tabs) -> str:
+def process_token(token) -> str:
     # Handle special cases where the matched token can't be directly substituted
     if isinstance(token, ID):
         return "vars[\"{0}\"] ".format(token.value)
@@ -120,11 +120,8 @@ def process_token(token, tabs) -> str:
     elif token == WAIT:
         return "await uasyncio.sleep_ms "
 
-    elif token == SAVE:
-        return tabs.join(["led[0].duty(lookup[vars[\"r\"]])\n", "led[1].duty(lookup[vars[\"g\"]])\n", "led[2].duty(lookup[vars[\"b\"]])"])
-
-    elif token == RAD:
-        return "radians"
+    elif token == LED:
+        return "vars[\"r\"], vars[\"g\"], vars[\"b\"] = led"
 
     # Return the matched token
     elif isinstance(token, str):

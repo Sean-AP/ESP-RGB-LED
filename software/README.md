@@ -7,11 +7,11 @@ For use with an ESP8266 or similar microcontroller <br>
 <br>
 
 ## How to Use
-- Add a network SSID and password, port, and human-friendly name to setup_net
-- Add the output pin numbers and a maximum incoming file size to setup_led
+- Duplicate the led_template.py and net_template.py files in src/setup
+- Add a network SSID and password, port, and human-friendly name to the new net setup file
+- Add the output pin numbers and a maximum incoming file size to the new led setup file
 - Upload all the .py files in this project to the microcontroller
-  - upload.sh provides a way to do this using ampy
-  - Usage: ./upload.sh --port \<dir> --baud \<int> --net \<\*.py> --led \<\*.py> 
+<br>
 
 With the files uploaded and main.py executing:
 - Send 'ping' to the open port to check the device name, current colour, and whether the lights are changing or static
@@ -21,19 +21,27 @@ Scripts can be written using the language described below <br>
 This prevents arbitrary code execution on the device <br>
 <br>
 
-## Grammar
-The grammar is (and must be) LL(1), which greatly simplifies the parser
-- Not checked: The first symbol of every rule in a production must be unique
-- Checked: The first symbol of a rule cannot be optional
-- Checked: Left recursion is disallowed
+## upload.sh
+upload.sh provides a way to upload software to the microcontroller using ampy <br>
+Usage: ./upload.sh --port \<dir> --baud \<int> --net \<\*.py> --led \<\*.py> 
+  - port is the USB port the device is connected on
+  - baud is the baudrate of the device
+  - net is the path to the net configuration file
+  - led is the path to the led configuration file
+<br>
 <br>
 
-The grammar describes a simplified Python-like language:
+## Grammar
+The parser assumes the grammar is unambiguous with 1 token lookahead <br>
+<br>
+
+The grammar describes a simple Python-like language:
 - Indentation is significant 
-  - The first indentation encountered will be used as the INDENT token for the rest of the file
+  - The first indentation encountered is used as the INDENT token for the rest of the file
+  - Tabs are recommended as they provide more spacing per character
 - Variables may be unsigned integers or booleans
 - Single-line comments are supported using '#'
-- expr rules are not typechecked
+- 0 is falsy, all other int values are truthy
 <br>
 
 ```
@@ -41,7 +49,7 @@ script : statement+
 
 statement : ID ASSIGN expr
           | 'wait' '(' expr ')'
-          | 'save'
+          | 'led' '(' expr ',' expr ',' expr ')'
           | 'break'
           | 'while' expr        ':' INDENT script DEDENT
           | 'if'    expr        ':' INDENT script DEDENT
@@ -59,9 +67,6 @@ expr : NUM     exprExt?
      | 'max' '(' expr ',' expr ')' exprExt?
      | 'min' '(' expr ',' expr ')' exprExt?
      | 'round' '(' expr ')' exprExt?
-     | 'ceil' '(' expr ')' exprExt?
-     | 'floor' '(' expr ')' exprExt?
-     | 'rad' '(' expr ')' exprExt?
      | 'sin' '(' expr ')' exprExt?
      | '(' expr ')' exprExt?
      ;
@@ -93,20 +98,22 @@ EQUATE  : '==' | '!=' ;
 
 Some notes:
 - waiting expects milliseconds, so wait(1000) will wait for 1s
-- save sets the output of the GPIO pins, so the lights only change colour when this is called
+- led sets the output of the GPIO pins, so the lights only change colour when this is called
+- When led is called, the variables r, g, b are updated to the values given
 - Argument specifiers cannot be used in range
-  - range(10, step=2) is not valid, use range(0, 10, 2) instead
+  - The function will follow the same behaviour as Python's range when used without argument specifiers
+  - For example, range(10, step=2) is not valid, use range(0, 10, 2) instead
 
 ## Parsing and Execution
 The parser handles some syntax rules, such as ensuring elif/else has a matching if <br>
-The parser does not check types <br>
-The values of variables r, g, and b must be kept between 0 and 255 
-- These are the values passed to the pins when save is called 
+The values of variables r, g, and b should be kept between 0 and 255 
+- These are the values passed to the pins when save is called
+- Values outside of this range will be raised to 0 or lowered to 255
 <br>
 Errors are handled as follows:
 - The lights turn red
-- If the error occurrs during parsing and a previous script is still executing, that script continues to execute
-- If the error occurrs during execution, the lights remain red until a new script is parsed and executed
+- If the error occurs during parsing and a previous script is still executing, that script continues to execute
+- If the error occurs during execution, the lights remain red until a new script is parsed and executed
 <br>
 
 ## Example Script
@@ -115,10 +122,7 @@ The delay starts at 40 ms, halving every cycle until 5 ms, then doubling until 4
 
 ```python
 # Start at red
-r = 255
-g = 0
-b = 0
-save
+led(255, 0, 0)
 
 min_delay = 5
 max_delay = 40
@@ -137,37 +141,31 @@ while True:
 
       # Red -> Yellow
       while g < 255:
-            g += 1
             wait(delay)
-            save
+            led(r, g + 1, b)
 
       # Yellow -> Green
       while r > 0:
-            r -= 1
             wait(delay)
-            save
+            led(r - 1, g, b)
 
       # Green -> Cyan
       while b < 255:
-            b += 1
             wait(delay)
-            save
+            led(r, g, b + 1)
 
       # Cyan -> Blue
       while g > 0:
-            g -= 1
             wait(delay)
-            save
+            led(r, g - 1, b)
 
       # Blue -> Magenta
       while r < 255:
-            r += 1
             wait(delay)
-            save
+            led(r + 1, g, b)
 
       # Magenta -> Red
       while b > 0:
-            b -= 1
             wait(delay)
-            save
+            led(r, g, b - 1)
 ```

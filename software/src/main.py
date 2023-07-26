@@ -1,5 +1,5 @@
 # Imports used by executed script
-from led import led, lookup, random
+from led import pins, lookup, led, sindeg, random
 from math import sin, radians, floor, ceil
 # Imports for parsing/executing scripts
 from parser import parse
@@ -21,14 +21,14 @@ vars = { "r" : 0, "g" : 0, "b" : 0 }
 async def main(vars, reader, writer):
     global buf, ping, exec_task
 
-    # Accept and decode request
-    print("Accepted a connection")
-
     try:
+        # Accept and decode request
+        print("Accepted a connection")
+
         read = await reader.readinto(buf)
         print("Received {0} bytes".format(read))
 
-        # Check for API ping
+        # Check for ping
         if read == len(ping) and buf[:len(ping)] == ping:
             print("Responding to ping")
             await ping_response(exec_task, vars, writer)
@@ -46,18 +46,15 @@ async def main(vars, reader, writer):
         print(str(e))
 
         if exec_task is None:
-            led[0].duty(1023)
-            led[1].duty(0)
-            led[2].duty(0)
+            pins[0].duty(1023)
+            pins[1].duty(0)
+            pins[2].duty(0)
 
     # Close streams on completion
     finally:
         reader.close()
         writer.close()
-
-        # Cleanup on exit
-        gc.collect()
-        gc.threshold(gc.mem_free() // 4 + gc.mem_alloc())
+        collect()
 
 
 # Parse the given buffer, cancelling any ongoing parsing task
@@ -72,8 +69,7 @@ async def parse_buf(read: int):
     func = parse(buf[:read].decode("ascii"))
     parse_task = None
 
-    gc.collect()
-    gc.threshold(gc.mem_free() // 4 + gc.mem_alloc())
+    collect()
 
     print("Parsed script:")
     print(func)
@@ -91,16 +87,15 @@ async def exec_func(func: str):
     print("Executing new script")
     exec_task = uasyncio.current_task()
     
-    exec(func)
-    await locals()['__script'](vars, led, lookup, random)
+    exec(func, {'led': led, 'sin': sindeg, 'random': random})
+    await locals()['__script'](vars, pins, lookup)
     
     exec_task = None
     print("Execution finished")
 
     # Remove additional vars to reclaim space
     vars = { "r" : vars["r"], "g" : vars["g"], "b" : vars["b"] }
-    gc.collect()
-    gc.threshold(gc.mem_free() // 4 + gc.mem_alloc())
+    collect()
 
 
 # Respond to a ping request from the site
@@ -116,6 +111,11 @@ async def ping_response(task, vars: dict, writer):
 
     await writer.drain()
 
+
+# Manually trigger garbage collection to reduce fragmentation
+def collect():
+    gc.collect()
+    gc.threshold(gc.mem_free() // 4 + gc.mem_alloc())
 
 # On executing, start a TCP socket
 if __name__ == "__main__":    
