@@ -26,7 +26,7 @@ def parse(text: str) -> list:
         
     # Split by line and discard empty lines - each line should represent a complete statement
     lines = (line for line in newline.split(text) if len(line) > 0 and not line.isspace())
-    script = "async def __script(vars, pins, lookup):\n"
+    script = "async def __script(vars, pins, lookup, led, random, sin):\n"
 
     # Track state
     prev_indent = 0

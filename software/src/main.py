@@ -87,8 +87,8 @@ async def exec_func(func: str):
     print("Executing new script")
     exec_task = uasyncio.current_task()
     
-    exec(func, {'led': led, 'sin': sindeg, 'random': random})
-    await locals()['__script'](vars, pins, lookup)
+    exec(func)
+    await locals()['__script'](vars, pins, lookup, led, random, sindeg)
     
     exec_task = None
     print("Execution finished")
