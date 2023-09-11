@@ -6,7 +6,7 @@ The project consists of three main folders: **software**, **pcb**, and **housing
 <br>
 
 ## Software
-A MicroPython module that can control and LED strip using the GPIO pins of an ESP8266 microcontroller
+A MicroPython module that can control an LED strip using the GPIO pins of an ESP8266 microcontroller
 <br>
 Input is received via wifi, written in a custom Python-like language which is parsed and executed onboard
 <br>
